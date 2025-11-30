@@ -41,7 +41,12 @@ export const LearningQuest: React.FC<LearningQuestProps> = ({ onComplete, siteNa
     setGameState('generating');
 
     try {
-      const apiKey = 'AIzaSyBPuIgdz6GTLL52ew8FTQVs1XMa8VFX2LY';
+      // Try to get API key from environment variable first, then fallback to localStorage
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY || localStorage.getItem('gemini_api_key');
+      
+      if (!apiKey) {
+        throw new Error('Gemini API key not found. Please add VITE_GEMINI_API_KEY to .env.local file. See API_KEY_SETUP.md for instructions.');
+      }
 
       const prompt = `Create an educational lesson about "${topic}" divided into 3 sections. Each section should teach something important about the topic.
 
