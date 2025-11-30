@@ -32,47 +32,112 @@ export const LearningQuest: React.FC<LearningQuestProps> = ({ onComplete, siteNa
   const [combatResult, setCombatResult] = useState<'correct' | 'wrong' | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Sound effects
+  // Halloween sound effects - play at specific moments only
+
+  // Halloween sound effects - play at specific moments only
   const playSound = (type: 'correct' | 'wrong' | 'victory' | 'death') => {
     try {
-      const audio = new Audio();
-      // Using Web Audio API to generate spooky sounds
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
       
       if (type === 'correct') {
-        // Success sound - ascending tone
-        oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.2);
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+        // Magical success chime
+        const playNote = (freq: number, startTime: number, duration: number) => {
+          const osc = audioContext.createOscillator();
+          const gain = audioContext.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, audioContext.currentTime + startTime);
+          gain.gain.setValueAtTime(0.2, audioContext.currentTime + startTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + startTime + duration);
+          osc.connect(gain);
+          gain.connect(audioContext.destination);
+          osc.start(audioContext.currentTime + startTime);
+          osc.stop(audioContext.currentTime + startTime + duration);
+        };
+        // Magical ascending arpeggio
+        playNote(523.25, 0, 0.15);    // C5
+        playNote(659.25, 0.1, 0.15);  // E5
+        playNote(783.99, 0.2, 0.3);   // G5
+        
       } else if (type === 'wrong') {
-        // Error sound - descending tone
-        oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.3);
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        // Evil laugh / cackle sound
+        const laugh = audioContext.createOscillator();
+        const laughGain = audioContext.createGain();
+        laugh.type = 'sawtooth';
+        
+        // Create laughing pattern with frequency modulation
+        laugh.frequency.setValueAtTime(200, audioContext.currentTime);
+        laugh.frequency.linearRampToValueAtTime(300, audioContext.currentTime + 0.1);
+        laugh.frequency.linearRampToValueAtTime(180, audioContext.currentTime + 0.2);
+        laugh.frequency.linearRampToValueAtTime(280, audioContext.currentTime + 0.3);
+        laugh.frequency.linearRampToValueAtTime(160, audioContext.currentTime + 0.4);
+        laugh.frequency.linearRampToValueAtTime(250, audioContext.currentTime + 0.5);
+        laugh.frequency.linearRampToValueAtTime(140, audioContext.currentTime + 0.6);
+        
+        // Volume envelope for laugh effect
+        laughGain.gain.setValueAtTime(0, audioContext.currentTime);
+        laughGain.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.05);
+        laughGain.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.15);
+        laughGain.gain.linearRampToValueAtTime(0.25, audioContext.currentTime + 0.25);
+        laughGain.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.35);
+        laughGain.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.45);
+        laughGain.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.6);
+        
+        laugh.connect(laughGain);
+        laughGain.connect(audioContext.destination);
+        laugh.start(audioContext.currentTime);
+        laugh.stop(audioContext.currentTime + 0.6);
+        
       } else if (type === 'victory') {
-        // Victory sound - triumphant
-        oscillator.frequency.setValueAtTime(523, audioContext.currentTime);
-        oscillator.frequency.setValueAtTime(659, audioContext.currentTime + 0.1);
-        oscillator.frequency.setValueAtTime(784, audioContext.currentTime + 0.2);
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+        // Triumphant fanfare
+        const playChord = (freqs: number[], startTime: number, duration: number) => {
+          freqs.forEach(freq => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, audioContext.currentTime + startTime);
+            gain.gain.setValueAtTime(0.15, audioContext.currentTime + startTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + startTime + duration);
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.start(audioContext.currentTime + startTime);
+            osc.stop(audioContext.currentTime + startTime + duration);
+          });
+        };
+        // Victory chord progression
+        playChord([523.25, 659.25, 783.99], 0, 0.3);      // C major
+        playChord([587.33, 739.99, 880.00], 0.25, 0.3);   // D major
+        playChord([659.25, 830.61, 987.77], 0.5, 0.5);    // E major
+        
       } else if (type === 'death') {
-        // Death sound - ominous low tone
-        oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 0.5);
-        gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        // Ominous death sound with ghost wail
+        const death1 = audioContext.createOscillator();
+        const death2 = audioContext.createOscillator();
+        const deathGain = audioContext.createGain();
+        
+        death1.type = 'sawtooth';
+        death2.type = 'sine';
+        
+        // Deep ominous tone
+        death1.frequency.setValueAtTime(110, audioContext.currentTime);
+        death1.frequency.exponentialRampToValueAtTime(55, audioContext.currentTime + 0.8);
+        
+        // Ghost wail overlay
+        death2.frequency.setValueAtTime(440, audioContext.currentTime);
+        death2.frequency.exponentialRampToValueAtTime(220, audioContext.currentTime + 0.4);
+        death2.frequency.exponentialRampToValueAtTime(110, audioContext.currentTime + 0.8);
+        
+        deathGain.gain.setValueAtTime(0.3, audioContext.currentTime);
+        deathGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+        
+        death1.connect(deathGain);
+        death2.connect(deathGain);
+        deathGain.connect(audioContext.destination);
+        
+        death1.start(audioContext.currentTime);
+        death2.start(audioContext.currentTime);
+        death1.stop(audioContext.currentTime + 0.8);
+        death2.stop(audioContext.currentTime + 0.8);
       }
-      
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + 0.5);
     } catch (err) {
       console.log('Sound playback failed:', err);
     }
@@ -87,8 +152,8 @@ export const LearningQuest: React.FC<LearningQuestProps> = ({ onComplete, siteNa
     setGameState('generating');
 
     try {
-      // Try to get API key from environment variable first, then fallback to localStorage
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY || localStorage.getItem('gemini_api_key');
+      // Get API key from environment variable only
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
       
       if (!apiKey) {
         throw new Error('Gemini API key not found. Please add VITE_GEMINI_API_KEY to .env.local file. See API_KEY_SETUP.md for instructions.');

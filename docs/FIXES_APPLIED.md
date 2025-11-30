@@ -32,7 +32,7 @@ const handleTryVisit = (site: BuriedSite) => {
 - Victory screen
 
 **Solution:** Created complete `LearningQuest.tsx` component with:
-- **Gemini AI Integration**: Uses your API key (AIzaSyBPuIgdz6GTLL52ew8FTQVs1XMa8VFX2LY)
+- **Gemini AI Integration**: Uses API key from environment variable (VITE_GEMINI_API_KEY)
 - **Topic Input Screen**: User enters any topic they want to learn about
 - **AI Content Generation**: Gemini generates 3 educational sections with quizzes
 - **Reading Phase**: User reads educational content for each section
@@ -88,11 +88,11 @@ npm install --save-dev @types/chrome
 - User must complete quest again for another 10 minutes
 - Or delete site from graveyard to permanently unblock
 
-## API Key
-Your Gemini API key is embedded in the code:
-```
-AIzaSyBPuIgdz6GTLL52ew8FTQVs1XMa8VFX2LY
-```
+## API Key Configuration
+The extension uses the Gemini API key from your `.env.local` file:
+- Set `VITE_GEMINI_API_KEY` in `.env.local`
+- See `.env.example` for the format
+- Never commit `.env.local` to version control
 
 The extension uses the Gemini 2.0 Flash model for fast, high-quality content generation.
 
